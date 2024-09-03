@@ -14,7 +14,6 @@ import {
   setDoc,
 } from "firebase/firestore";
 
-import { userType } from "@/constants/user-type";
 import { useUserContext } from "@/services/userContext";
 import { auth, firestore } from "@/services/firebase";
 import { useUserStore } from "@/store/user";
@@ -54,11 +53,6 @@ export default function EditProfile() {
           setValue("phone", userData.phone ?? "");
           setValue("pinCode", userData.pinCode ?? "");
           userData.type && setValue("type", userData.type ?? "");
-
-          if (userData.type === "Volunteers") {
-            setValue("volunteerNgo", userData.volunteerNgo ?? "");
-          }
-
           if (userData.type === "NGOs") {
             setValue("ngoId", userData.ngoId ?? "");
             setValue("ngoAddress", userData.ngoAddress ?? "");
@@ -83,34 +77,42 @@ export default function EditProfile() {
 
   const onSubmit = async (data) => {
     const { email, ...rest } = data;
-
+    
+    // Ensure the type is always set to "NGOs"
+    const filteredData = {
+      ...rest,
+      type: "NGOs",
+    };
+  
     await changeDisplayName(data.username);
     console.log(email);
-
+    
     const docRef = doc(firestore, "Users", email);
-
+    
     const user = await getDoc(docRef);
-
-    if (!user.exists())
+    
+    if (!user.exists()) {
       await setDoc(docRef, {
-        ...rest,
+        ...filteredData,
         lastUpdated: serverTimestamp(),
       });
-    else
+    } else {
       await updateDoc(docRef, {
-        ...rest,
+        ...filteredData,
         lastUpdated: serverTimestamp(),
       });
-
+    }
+    
     const docSnap = await getDoc(docRef);
-
+    
     if (!docSnap.exists()) return;
-
+    
     setUser({ id: docSnap.id, ...docSnap.data() });
-
+    
     router.push("/profile");
   };
-
+  
+  
   function EditProfileSection({ title, description, children }) {
     return (
       <div className="pb-12 border-b border-base-content border-opacity-30">
@@ -140,11 +142,7 @@ export default function EditProfile() {
           >
             <div className="form-control sm:col-span-full">
               <label htmlFor="username" className="text-base-content label">
-                {watch("type") === "NGOs"
-                  ? "NGO Name"
-                  : watch("type") === "Private Companies"
-                  ? "Company Name"
-                  : "Username"}
+                NGO Name
               </label>
               <input
                 className="input input-bordered"
@@ -189,118 +187,88 @@ export default function EditProfile() {
               <select
                 className="mt-1 select select-bordered"
                 {...register("type")}
+                defaultValue="NGOs"
+                disabled
               >
-                {userType.map((type) => (
-                  <option key={type} value={type}>
-                    {type}
-                  </option>
-                ))}
+                <option value="NGOs">NGOs</option>
               </select>
             </div>
           </EditProfileSection>
 
-          {watch("type") === "Volunteers" && (
-            <EditProfileSection
-              title="NGO Information"
-              description="Your NGO information and details"
-            >
-              <div className="col-span-3 form-control">
-                <label
-                  htmlFor="volunteerNgo"
-                  className="text-base-content label"
-                >
-                  NGO
-                </label>
-                <select
-                  {...register("volunteerNgo")}
-                  className="mt-1 select select-bordered"
-                >
-                  {ngos.map((ngo) => (
-                    <option value={ngo.id} key={ngo.id}>
-                      {ngo.username}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </EditProfileSection>
-          )}
+          <EditProfileSection
+            title="NGO Information"
+            description="Your NGO information and details"
+          >
+            <div className="col-span-3 form-control">
+              <label htmlFor="ngoId" className="text-base-content label">
+                Id
+              </label>
+              <input
+                {...register("ngoId")}
+                type="text"
+                className="input input-bordered"
+              />
+            </div>
 
-          {watch("type") === "NGOs" && (
-            <EditProfileSection
-              title="NGO Information"
-              description="Your NGO information and details"
-            >
-              <div className="col-span-3 form-control">
-                <label htmlFor="ngoId" className="text-base-content label">
-                  Id
-                </label>
+            <div className="col-span-3 form-control">
+              <label htmlFor="ngoPhone" className="text-base-content label">
+                Phone
+              </label>
+              <div className="input-group">
+                <span>
+                  <IconPhone />
+                </span>
                 <input
-                  {...register("ngoId")}
+                  {...register("ngoPhone")}
                   type="text"
-                  className="input input-bordered"
+                  className="w-full input input-bordered"
                 />
               </div>
+            </div>
 
-              <div className="col-span-3 form-control">
-                <label htmlFor="ngoPhone" className="text-base-content label">
-                  Phone
-                </label>
-                <div className="input-group">
-                  <span>
-                    <IconPhone />
-                  </span>
-                  <input
-                    {...register("ngoPhone")}
-                    type="text"
-                    className="w-full input input-bordered"
-                  />
-                </div>
-              </div>
-
-              <div className="col-span-3 form-control">
-                <label htmlFor="ngoEmail" className="text-base-content label">
-                  Email
-                </label>
-                <div className="input-group">
-                  <span>
-                    <IconMail />
-                  </span>
-                  <input
-                    {...register("ngoEmail")}
-                    type="email"
-                    className="w-full input input-bordered"
-                  />
-                </div>
-              </div>
-
-              <div className="col-span-3 form-control">
-                <label htmlFor="ngoWebsite" className="text-base-content label">
-                  Website
-                </label>
-                <div className="input-group">
-                  <span>
-                    <IconWorld />
-                  </span>
-                  <input
-                    {...register("ngoWebsite")}
-                    type="text"
-                    className="w-full input input-bordered"
-                  />
-                </div>
-              </div>
-
-              <div className="col-span-full form-control">
-                <label htmlFor="ngoAddress" className="text-base-content label">
-                  Address
-                </label>
+            <div className="col-span-3 form-control">
+              <label htmlFor="ngoEmail" className="text-base-content label">
+                Email
+              </label>
+              <div className="input-group">
+                <span>
+                  <IconMail />
+                </span>
                 <input
-                  {...register("ngoAddress")}
-                  type="text"
-                  className="input input-bordered"
+                  {...register("ngoEmail")}
+                  type="email"
+                  className="w-full input input-bordered"
                 />
               </div>
-            </EditProfileSection>
-          )}
+            </div>
+
+            <div className="col-span-3 form-control">
+              <label htmlFor="ngoWebsite" className="text-base-content label">
+                Website
+              </label>
+              <div className="input-group">
+                <span>
+                  <IconWorld />
+                </span>
+                <input
+                  {...register("ngoWebsite")}
+                  type="text"
+                  className="w-full input input-bordered"
+                />
+              </div>
+            </div>
+
+            <div className="col-span-full form-control">
+              <label htmlFor="ngoAddress" className="text-base-content label">
+                Address
+              </label>
+              <input
+                {...register("ngoAddress")}
+                type="text"
+                className="input input-bordered"
+              />
+            </div>
+          </EditProfileSection>
         </div>
 
         <div className="flex items-center justify-end mt-6 gap-x-6">
