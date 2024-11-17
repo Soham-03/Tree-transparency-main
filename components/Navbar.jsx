@@ -304,10 +304,10 @@ import { IconQrcodeOff } from "@tabler/icons-react";
 import { IconScan } from "@tabler/icons-react";
 
 const navigation = [
-  { name: "Adopt", href: "/tree/adopt" },
-  { name: "Donations", href: "/donations" },
+  { name: "Adopt Saplings", href: "/tree/adopt" },
+  { name: "Your Donations", href: "/donations" },
   { name: "Growth Track", href: "/tree/growth-track" },
-  { name: "IOT Track", href: "/sensors" },
+  { name: "Tracking With Module", href: "/sensors" },
 ];
 
 const commonProfileOptions = [
