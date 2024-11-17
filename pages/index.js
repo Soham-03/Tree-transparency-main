@@ -217,6 +217,20 @@ function Statistics() {
 function Team() {
   const members = [
     {
+      name: "Soham Parab",
+      github: "https://github.com/Soham-03",
+      linkedin: "https://www.linkedin.com/in/sohamm-parab/",
+      photo:
+        "https://media.licdn.com/dms/image/v2/D4D03AQEQrHQMxXIzuA/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1731864783340?e=1737590400&v=beta&t=pJ0sQ3-RwgdabrKkWgwsCpWATGjUiBNa1zVJe7FsBt8",
+    },
+    {
+      name: "Bryce Miranda",
+      github: "https://github.com/Soham-03",
+      linkedin: "https://www.linkedin.com/in/brycemiranda5/",
+      photo:
+        "https://media.licdn.com/dms/image/v2/D4E03AQF-Je10MDScWg/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1678540214598?e=1737590400&v=beta&t=g9rqhhfrPN6bBSOu_GZK9MEEmEGivwB7EL7YMftkvEY",
+    },
+    {
       name: "Ryan Valiaparambil",
       github: "https://github.com/vryan-06",
       linkedin: "https://www.linkedin.com/in/ryan-v-20690b1b9",
@@ -250,20 +264,6 @@ function Team() {
       linkedin: "https://www.linkedin.com/in/mahek-intwala-99aaa6235/",
       photo:
         "https://media.licdn.com/dms/image/C4D03AQEUYpJjnazBiw/profile-displayphoto-shrink_400_400/0/1661009981685?e=1729123200&v=beta&t=EU4zWqb2wL8bnXJHKMc8VAqbICwUNUYPLdAGty7SyCo",
-    },
-    {
-      name: "Soham Parab",
-      github: "https://github.com/Soham-03",
-      linkedin: "https://www.linkedin.com/in/sohamm-parab/",
-      photo:
-        "https://media.licdn.com/dms/image/D4D03AQG8yFD36F-83w/profile-displayphoto-shrink_400_400/0/1704803320655?e=1729123200&v=beta&t=nfiWokNmtwnJwV6kZtxv9dxx2S6ycos_o-V-Fh-W90U",
-    },
-    {
-      name: "Bryce Miranda",
-      github: "https://github.com/Soham-03",
-      linkedin: "https://www.linkedin.com/in/brycemiranda5/",
-      photo:
-        "https://media.licdn.com/dms/image/v2/D4E03AQF-Je10MDScWg/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1678540214598?e=1729123200&v=beta&t=khha65qFp-7XOchOAkZQ54tu2ZjCgankhSEfnIU7ldM",
     },
     {
       name: "Nikhil Ramraje",
