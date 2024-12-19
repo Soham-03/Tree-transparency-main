@@ -1,3 +1,5 @@
+// TreeGrowthVisualizer.js
+
 import {
   getDownloadURL,
   ref,
@@ -5,22 +7,12 @@ import {
   uploadBytesResumable,
 } from "firebase/storage";
 import { firestore, storage } from "@/services/firebase";
-import {
-  useDocumentDataOnce,
-  useDocumentOnce,
-} from "react-firebase-hooks/firestore";
+import { useDocumentDataOnce } from "react-firebase-hooks/firestore";
 import { collection, doc, getDoc, updateDoc } from "firebase/firestore";
 import Link from "next/link";
-import { IconCircleCheck, IconCircleX, IconCopy } from "@tabler/icons-react";
-import { useRouter } from "next/router";
-import { useEffect, useRef, useState } from "react";
-import Loading from "@/components/Loading";
-import { useUserContext } from "@/services/userContext";
-import { IconQrcode } from "@tabler/icons-react";
-import QRCode from "qrcode.react";
+import { TreeDeciduous, Info, Upload, ArrowRight, ChartBar, Leaf, TrendingUp, Camera } from "lucide-react";
 import Head from "next/head";
-import { IconCirclePlus } from "@tabler/icons-react";
-import { testResult } from "@/backend/result.js";
+import { useState } from "react";
 
 export default function Tree({
   id,
@@ -41,41 +33,30 @@ export default function Tree({
     doc(firestore, "Users", ngo)
   );
 
-  // Growth Track part
   const [treeImageUrl, setTreeImageUrl] = useState(imageUrl)
   const [image1, setImage1] = useState(null);
   const [image2, setImage2] = useState(null);
   const [result, setResult] = useState(null);
-
-  // const handleImage1Change = () => {
-  //   setImage1(`https://gateway.pinata.cloud/ipfs/${ipfsHash}`);
-  // };
+  const [isLoading, setIsLoading] = useState(false);
+  const [showExamples, setShowExamples] = useState(false);
 
   const handleImage2Change = (e) => {
-    const file1 = e.target.files[0];
-    setImage1(file1);
-    console.log(file1);
-
     const file = e.target.files[0];
-
     if (file) {
+      setImage1(file);
       const reader = new FileReader();
-
       reader.onloadend = () => {
         setImage2(reader.result);
       };
-
       reader.readAsDataURL(file);
     }
   };
 
   const detectGrowth = async () => {
-    // setResult(testResult);
-
     setResult(null);
+    setIsLoading(true);
     try {
       const formData = new FormData();
-      // formData.append("file1", image1);
       const storageRef = ref(storage, `/planted/${id}`);
       const imageUrl = await getDownloadURL(storageRef);
 
@@ -87,57 +68,42 @@ export default function Tree({
         body: formData,
       });
 
-      // Checking the response for growth
       if (response.ok) {
         const result = await response.json();
 
-
-    const uploadTask = uploadBytesResumable(storageRef, image1);
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {},
-      (err) => console.log(err),
-      () => {
-        getDownloadURL(uploadTask.snapshot.ref)
-          .then(async (url) => {
-          console.log(url);
-          setTreeImageUrl(url)
-          await updateDoc(doc(firestore, "Trees", id), {
-            imageUrl: url,
-          });
-          alert("Updated Tree Image");
-          })
-          .catch((error) => {
-            console.error(error);
-          })
-      }
-    );
-        console.log(result);
-        // console.log(`Result from response ${result}`);
-        setResult(result);
-        console.log(
-          result.growth_detected == "True"
-            ? "Significant Growth Detected!"
-            : "No Significant Growth Detected."
+        const uploadTask = uploadBytesResumable(storageRef, image1);
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {},
+          (err) => console.log(err),
+          () => {
+            getDownloadURL(uploadTask.snapshot.ref)
+              .then(async (url) => {
+                setTreeImageUrl(url);
+                await updateDoc(doc(firestore, "Trees", id), {
+                  imageUrl: url,
+                });
+                alert("Updated Tree Image");
+              })
+              .catch((error) => {
+                console.error(error);
+              });
+          }
         );
-        // alert(result.growth_detected == "True" ? "Significant Growth Detected!" : "No Significant Growth Detected.");
+        
+        setResult(result);
       } else {
-        // alert("Failed to detect growth.");
         console.log("Failed to detect growth.");
       }
     } catch (error) {
       console.error("Error during growth detection:", error);
+    } finally {
+      setIsLoading(false);
     }
-
-    // Commenting for debugging
-    // finally {
-    //   setImage1(null);
-    //   setImage2(null);
-    // };
   };
 
   return (
-    <>
+    <div>
       <Head>
         <title>Plant Growth Track</title>
       </Head>
@@ -153,7 +119,63 @@ export default function Tree({
         <div className="max-w-full prose prose-lg">
           <h1 className="flex gap-6 items-center">{name}</h1>
 
-          <table>
+          <div className="bg-white rounded-lg border p-6 mb-8">
+            <div className="flex justify-between items-start">
+              <div>
+                <h2 className="text-xl font-semibold flex items-center gap-2">
+                  <TreeDeciduous className="text-green-500" />
+                  Track Your Tree's Growth
+                </h2>
+                <p className="text-gray-600 mt-4">Upload two images of your tree to see how it has grown:</p>
+                <ol className="mt-2 space-y-2 text-gray-600 list-decimal ml-4">
+                  <li>First, upload an older image of your tree</li>
+                  <li>Then, upload a recent image from a similar angle</li>
+                  <li>Click "Detect Growth" to see the comparison</li>
+                </ol>
+              </div>
+              <button
+                onClick={() => setShowExamples(!showExamples)}
+                className="flex items-center gap-2 text-green-600 hover:text-green-700"
+              >
+                <Info className="w-5 h-5" />
+                View Examples
+              </button>
+            </div>
+          </div>
+
+          {showExamples && (
+            <div className="bg-white rounded-lg border p-6 mb-8">
+              <h3 className="text-xl font-semibold mb-4">How It Works</h3>
+              <div className="grid grid-cols-3 gap-6">
+                <div>
+                  <img
+                    src="/api/placeholder/400/300"
+                    alt="Step 1"
+                    className="w-full rounded-lg border"
+                  />
+                  <p className="text-sm text-center mt-2">1. We analyze your first image</p>
+                </div>
+                <div>
+                  <img
+                    src="/api/placeholder/400/300"
+                    alt="Step 2"
+                    className="w-full rounded-lg border"
+                  />
+                  <p className="text-sm text-center mt-2">2. Then analyze the recent image</p>
+                </div>
+                <div>
+                  <img
+                    src="/api/placeholder/400/300"
+                    alt="Step 3"
+                    className="w-full rounded-lg border"
+                  />
+                  <p className="text-sm text-center mt-2">3. Compare for growth changes</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <table className="mb-8">
             <tbody>
               <tr>
                 <td>IPFS Hash</td>
@@ -170,127 +192,179 @@ export default function Tree({
                   <td>{verifiedBy}</td>
                 </tr>
               )}
-
-              <tr>
-                <td className="align-top">Previous Image</td>
-                <td>
-                  <img className="w-48 h-80" src={treeImageUrl} alt={name} />
-                </td>
-              </tr>
-
-              <tr>
-                <td className="align-top">Added Image</td>
-                <td>
-                  <input
-                    className="w-1/3 px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:shadow-outline"
-                    type="file"
-                    id="image2"
-                    accept="image/*"
-                    onChange={handleImage2Change}
-                  />
-                  {image2 && (
-                    <img
-                      className="w-48 h-80 mt-2"
-                      src={image2}
-                      alt="Current Image"
-                    />
-                  )}
-                </td>
-              </tr>
             </tbody>
           </table>
 
-          <div className="max-w-lg p-3 mx-auto">
-            <div className="flex items-center justify-center">
-              <button
-                onClick={detectGrowth}
-                className="px-4 py-2 text-white bg-green-500 rounded-lg hover:bg-green-700 focus:outline-none focus:shadow-outline"
-              >
-                Detect Growth
-              </button>
+          <div className="grid grid-cols-2 gap-6 mb-8">
+            <div className="bg-white rounded-lg border p-6">
+              <h3 className="text-xl font-bold mb-4">Previous Image</h3>
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center min-h-[400px]">
+                {treeImageUrl ? (
+                  <img 
+                    src={treeImageUrl} 
+                    alt={name} 
+                    className="max-w-full h-auto"
+                  />
+                ) : (
+                  <div className="text-center">
+                    <Upload className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                    <p className="text-gray-500">Upload previous image</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg border p-6">
+              <h3 className="text-xl font-bold mb-4">Recent Image</h3>
+              <label className="cursor-pointer">
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center min-h-[400px]">
+                  {image2 ? (
+                    <img 
+                      src={image2} 
+                      alt="Recent" 
+                      className="max-w-full h-auto"
+                    />
+                  ) : (
+                    <div className="text-center">
+                      <Upload className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                      <p className="text-gray-500">Upload recent image</p>
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleImage2Change}
+                  />
+                </div>
+              </label>
             </div>
           </div>
 
+          <div className="flex justify-center mb-8">
+            <button
+              onClick={detectGrowth}
+              disabled={!image1 || isLoading}
+              className="px-8 py-3 text-white bg-green-500 rounded-lg hover:bg-green-600 focus:outline-none focus:shadow-outline flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+            >
+              {isLoading ? (
+                <div className="flex items-center gap-2">
+                  <Camera className="w-5 h-5 animate-pulse" />
+                  Analyzing Images...
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <ArrowRight className="w-5 h-5" />
+                  Detect Growth
+                </div>
+              )}
+            </button>
+          </div>
+
           {result && (
-            <div className="container py-6 mx-auto space-y-4 px-4 sm:px-6 lg:px-8">
-              <div className="overflow-x-auto">
-                <table className="table w-full table-compact">
-                  <thead>
-                    <tr>
-                      <th className="text-center">Growth Detected</th>
-                      <th className="text-center">Growth Score</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td className="text-center">
-                        {result.growth_detected === "True" ? (
-                          <span className="text-green-500">
-                            Significant Growth Detected!
-                          </span>
-                        ) : (
-                          <span className="text-red-500">
-                            No Significant Growth Detected
-                          </span>
-                        )}
-                      </td>
-                      <td className="text-center">
-                        {result.mse && result.mse.toFixed(3)}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+            <div className="space-y-8 mb-8">
+              <div className="bg-white rounded-2xl border p-8 shadow-sm">
+                <div className="grid grid-cols-2 gap-8">
+                  <div className={`rounded-xl p-6 flex items-center gap-4 ${
+                    result.growth_detected === "True" ? 'bg-green-50' : 'bg-red-50'
+                  }`}>
+                    <div className={`rounded-full p-3 ${
+                      result.growth_detected === "True" ? 'bg-green-100' : 'bg-red-100'
+                    }`}>
+                      <TreeDeciduous className={`w-8 h-8 ${
+                        result.growth_detected === "True" ? 'text-green-600' : 'text-red-600'
+                      }`} />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-medium text-gray-900">Growth Analysis</h3>
+                      <p className={`text-sm ${
+                        result.growth_detected === "True" ? 'text-green-600' : 'text-red-600'
+                      }`}>
+                        {result.growth_detected === "True" 
+                          ? "Your tree is showing healthy growth! 🌱" 
+                          : "No significant changes detected yet"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl bg-blue-50 p-6 flex items-center gap-4">
+                    <div className="rounded-full bg-blue-100 p-3">
+                      <ChartBar className="w-8 h-8 text-blue-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-medium text-gray-900">Growth Score</h3>
+                      <p className="text-sm text-blue-600">
+                        {result.mse ? `${result.mse.toFixed(2)}% change detected` : 'Calculating score...'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="overflow-x-auto">
-                <table className="table w-full table-compact">
-                  <thead>
-                    <tr>
-                      <th className="text-center">Mask of Image 1</th>
-                      <th className="text-center">Mask of Image 2</th>
-                      <th className="text-center">Difference Mask</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td className="text-center">
-                        {result.maskeda_thresh1 && (
-                          <img
-                            src={`data:image/png;base64,${result.maskeda_thresh1}`}
-                            alt="Masked Image 1"
-                            className="border mx-auto block"
-                            style={{ maxWidth: "200px", maxHeight: "200px" }}
-                          />
-                        )}
-                      </td>
-                      <td className="text-center">
-                        {result.maskeda_thresh2 && (
-                          <img
-                            src={`data:image/png;base64,${result.maskeda_thresh2}`}
-                            alt="Masked Image 2"
-                            className="border mx-auto block"
-                            style={{ maxWidth: "200px", maxHeight: "200px" }}
-                          />
-                        )}
-                      </td>
-                      <td className="text-center">
-                        {result.diff && (
-                          <img
-                            src={`data:image/png;base64,${result.diff}`}
-                            alt="Difference Image"
-                            className="border mx-auto block"
-                            style={{ maxWidth: "200px", maxHeight: "200px" }}
-                          />
-                        )}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+
+              <div className="bg-white rounded-2xl border p-8 shadow-sm">
+                <h3 className="text-xl font-semibold mb-6">Visual Analysis Breakdown</h3>
+                <div className="grid grid-cols-3 gap-6">
+                  <div className="space-y-4">
+                    <div className="aspect-square rounded-lg overflow-hidden border bg-gray-50">
+                      {result.maskeda_thresh1 && (
+                        <img
+                          src={`data:image/png;base64,${result.maskeda_thresh1}`}
+                          alt="Previous Image Analysis"
+                          className="w-full h-full object-contain"
+                        />
+                      )}
+                    </div>
+                    <div className="text-center">
+                      <h4 className="font-medium text-gray-900">Previous State</h4>
+                      <p className="text-sm text-gray-500">Initial tree structure identified</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="aspect-square rounded-lg overflow-hidden border bg-gray-50">
+                      {result.maskeda_thresh2 && (
+                        <img
+                          src={`data:image/png;base64,${result.maskeda_thresh2}`}
+                          alt="Recent Image Analysis"
+                          className="w-full h-full object-contain"
+                        />
+                      )}
+                    </div>
+                    <div className="text-center">
+                      <h4 className="font-medium text-gray-900">Current State</h4>
+                      <p className="text-sm text-gray-500">New growth patterns detected</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="aspect-square rounded-lg overflow-hidden border bg-gray-50">
+                      {result.diff && (
+                        <img
+                          src={`data:image/png;base64,${result.diff}`}
+                          alt="Growth Difference"
+                          className="w-full h-full object-contain"
+                        />
+                      )}
+                    </div>
+                    <div className="text-center">
+                      <h4 className="font-medium text-gray-900">Growth Areas</h4>
+                      <p className="text-sm text-gray-500">Highlighted regions show changes</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                  <p className="text-sm text-gray-600">
+                    <strong>How to read this:</strong> Our AI analyzes tree structure in both images.
+                    Brighter areas in the final image show where growth has occurred. This helps track your tree's progress over time.
+                  </p>
+                </div>
               </div>
             </div>
           )}
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
@@ -315,4 +389,4 @@ export async function getServerSideProps(context) {
       createdAt: tree.data()?.createdAt?.toDate().toISOString() || "Date Not Available",
     },
   };
-}
+ }
