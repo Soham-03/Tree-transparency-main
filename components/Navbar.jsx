@@ -596,6 +596,9 @@ const navigation = [
     icon: IconDeviceLaptop,
     description: "Tech-powered monitoring" 
   },
+  
+    
+  
 ];
 
 const commonProfileOptions = [

@@ -1,3 +1,4 @@
+'use client'
 import { useUserContext } from "@/services/userContext";
 import { useUserStore } from "@/store/user";
 import { useRouter } from "next/router";
