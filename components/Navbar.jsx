@@ -558,10 +558,16 @@ import {
   IconDeviceLaptop,
   IconUserCircle,
   IconWood,
-  IconHandHeart,
   IconPlus,
   IconCheckupList,
+  IconChevronDown,
+  IconTemperature,
+  IconDroplet,
+  IconSun2,
+  IconPlant
 } from "@tabler/icons-react";
+
+
 import clsx from "clsx";
 import Link from "next/link";
 import { useUserStore } from "@/store/user";
@@ -590,13 +596,33 @@ const navigation = [
     description: "Watch trees grow" 
   },
   { 
-    name: 
-    "Tracking using Module", 
-    href: "/sensors",
+    name: "Track using Iot Module", 
+    type: "dropdown",
     icon: IconDeviceLaptop,
-    description: "Tech-powered monitoring" 
+    description: "Tech-powered monitoring",
+    items: [
+      {
+        name: "About",
+        href: "/sensors/About",
+        icon: IconTemperature,
+        description: "Features of Iot Module"
+      },
+      {
+        name: "Sensors",
+        href: "/sensors",
+        icon: IconDroplet,
+        description: "Track my tree"
+      },
+     
+    ]
   },
-  
+  { 
+    name: 
+    "Support Growth", 
+    href: "/donate",
+    icon: IconHeartHandshake,
+    description: "Your Donations" 
+  },
     
   
 ];
@@ -642,7 +668,94 @@ const donationOptions = [
     description: "Help us plant more trees" 
   }
 ];
+function NavigationItem({ item, isMobile = false }) {
+  const router = useRouter();
+  
+  if (item.type === "dropdown") {
+    return (
+      <Menu as="div" className="relative">
+        {({ open }) => (
+          <>
+            <Menu.Button
+              className={clsx(
+                "px-3 py-2 rounded-lg text-sm font-medium transition-colors relative group inline-flex items-center gap-2",
+                open
+                  ? "bg-green-100 text-green-900 dark:bg-green-900/50 dark:text-green-100"
+                  : "hover:bg-green-50 dark:hover:bg-green-900/30"
+              )}
+            >
+              <item.icon size={18} />
+              <span>{item.name}</span>
+              <IconChevronDown
+                className={clsx(
+                  "w-4 h-4 transition-transform",
+                  open ? "transform rotate-180" : ""
+                )}
+              />
+            </Menu.Button>
+            
+            <Transition
+              as={Fragment}
+              enter="transition ease-out duration-100"
+              enterFrom="transform opacity-0 scale-95"
+              enterTo="transform opacity-100 scale-100"
+              leave="transition ease-in duration-75"
+              leaveFrom="transform opacity-100 scale-100"
+              leaveTo="transform opacity-0 scale-95"
+            >
+              <Menu.Items className="absolute left-0 mt-2 w-56 origin-top-left rounded-lg bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                <div className="py-1">
+                  {item.items.map((subItem) => (
+                    <Menu.Item key={subItem.href}>
+                      {({ active }) => (
+                        <Link
+                          href={subItem.href}
+                          className={clsx(
+                            "flex items-center gap-2 px-4 py-2 text-sm",
+                            active ? "bg-gray-100 dark:bg-gray-700" : ""
+                          )}
+                        >
+                          <subItem.icon size={18} />
+                          <div>
+                            <div>{subItem.name}</div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                              {subItem.description}
+                            </div>
+                          </div>
+                        </Link>
+                      )}
+                    </Menu.Item>
+                  ))}
+                </div>
+              </Menu.Items>
+            </Transition>
+          </>
+        )}
+      </Menu>
+    );
+  }
 
+  return (
+    <Link
+      href={item.href}
+      className={clsx(
+        "px-3 py-2 rounded-lg text-sm font-medium transition-colors relative group",
+        item.href === router.pathname
+          ? "bg-green-100 text-green-900 dark:bg-green-900/50 dark:text-green-100"
+          : "hover:bg-green-50 dark:hover:bg-green-900/30"
+      )}
+    >
+      <div className="flex items-center gap-2">
+        <item.icon size={18} />
+        <span>{item.name}</span>
+      </div>
+      
+      <div className="absolute hidden group-hover:block left-1/2 -translate-x-1/2 top-full mt-1 px-3 py-1 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs rounded whitespace-nowrap z-20">
+        {item.description}
+      </div>
+    </Link>
+  );
+}
 export default function Navbar() {
   const router = useRouter();
   const { userStore } = useUserStore();
@@ -677,26 +790,26 @@ export default function Navbar() {
                 <div className="hidden sm:ml-6 sm:block">
                   <div className="flex space-x-1">
                     {userStore && userStore.type && navigation.map((item) => (
-                      <Link
-                        key={item.name}
-                        href={item.href}
-                        className={clsx(
-                          "px-3 py-2 rounded-lg text-sm font-medium transition-colors relative group",
-                          item.href === router.pathname
-                            ? "bg-green-100 text-green-900 dark:bg-green-900/50 dark:text-green-100"
-                            : "hover:bg-green-50 dark:hover:bg-green-900/30"
-                        )}
-                      >
-                        <div className="flex items-center gap-2">
-                          <item.icon size={18} />
-                          <span>{item.name}</span>
-                        </div>
+                      // <Link
+                      //   key={item.name}
+                      //   href={item.href}
+                      //   className={clsx(
+                      //     "px-3 py-2 rounded-lg text-sm font-medium transition-colors relative group",
+                      //     item.href === router.pathname
+                      //       ? "bg-green-100 text-green-900 dark:bg-green-900/50 dark:text-green-100"
+                      //       : "hover:bg-green-50 dark:hover:bg-green-900/30"
+                      //   )}
+                      // >
+                      //   <div className="flex items-center gap-2">
+                      //     <item.icon size={18} />
+                      //     <span>{item.name}</span>
+                      //   </div>
                         
-                        <div className="absolute hidden group-hover:block left-1/2 -translate-x-1/2 top-full mt-1 px-3 py-1 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs rounded whitespace-nowrap z-20">
-                          {item.description}
-                        </div>
-                      </Link>
-          
+                      //   <div className="absolute hidden group-hover:block left-1/2 -translate-x-1/2 top-full mt-1 px-3 py-1 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs rounded whitespace-nowrap z-20">
+                      //     {item.description}
+                      //   </div>
+                      // </Link>
+                      <NavigationItem key={item.name} item={item} />
                     ))}
                     
                     {userStore?.type === "Private Companies" && donationOptions.map((item) => (
@@ -746,7 +859,7 @@ export default function Navbar() {
             </div>
           </div>
 
-          <Disclosure.Panel className="sm:hidden">
+          {/* <Disclosure.Panel className="sm:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1">
               {navigation.map((item) => (
                 <Disclosure.Button
@@ -766,6 +879,45 @@ export default function Navbar() {
                     <div className="text-xs text-gray-500 dark:text-gray-400">{item.description}</div>
                   </div>
                 </Disclosure.Button>
+              ))}
+            </div>
+          </Disclosure.Panel> */}
+            {/* Modify mobile menu to handle dropdowns */}
+            <Disclosure.Panel className="sm:hidden">
+            <div className="px-2 pt-2 pb-3 space-y-1">
+              {navigation.map((item) => (
+                <div key={item.name}>
+                  {item.type === "dropdown" ? (
+                    <Menu as="div" className="w-full">
+                      <Menu.Button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors hover:bg-green-50 dark:hover:bg-green-900/30">
+                        <item.icon size={20} />
+                        <div className="flex-1 text-left">
+                          <div className="font-medium">{item.name}</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">{item.description}</div>
+                        </div>
+                        <IconChevronDown className="w-4 h-4" />
+                      </Menu.Button>
+                      <Menu.Items className="mt-1 ml-4 space-y-1">
+                        {item.items.map((subItem) => (
+                          <Menu.Item key={subItem.href}>
+                            <Link
+                              href={subItem.href}
+                              className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors hover:bg-green-50 dark:hover:bg-green-900/30"
+                            >
+                              <subItem.icon size={18} />
+                              <div>
+                                <div className="font-medium">{subItem.name}</div>
+                                <div className="text-xs text-gray-500 dark:text-gray-400">{subItem.description}</div>
+                              </div>
+                            </Link>
+                          </Menu.Item>
+                        ))}
+                      </Menu.Items>
+                    </Menu>
+                  ) : (
+                    <NavigationItem item={item} isMobile />
+                  )}
+                </div>
               ))}
             </div>
           </Disclosure.Panel>

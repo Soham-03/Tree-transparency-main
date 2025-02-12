@@ -164,6 +164,7 @@ import { useUserContext } from "@/services/userContext";
 import { useUserStore } from "@/store/user";
 import Loading from "@/components/Loading";
 import GuardedPage from "@/components/GuardedPage";
+
 import Footer from "@/components/Footer";
 export default function Profile() {
   const router = useRouter();

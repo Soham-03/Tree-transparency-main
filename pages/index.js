@@ -584,7 +584,7 @@ const LandingPage = () => {
     <main className="min-h-screen bg-cover bg-center bg-no-repeat antialiased"
     style={{
       backgroundImage: "url('/images/treeFinal.avif')", // Path to your image
-    }}>
+    }} suppressHydrationWarning>
       <TextGenerateEffectDemo />
       <NumberStats />
       <AdoptTree />

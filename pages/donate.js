@@ -140,8 +140,11 @@ export default function pay() {
           key: "rzp_test_Vx5bKnJJCz2Jvb",
           amount: amount * 100, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
           currency: "INR",
-          name: "",
+          name: "GreenSense",
           description: "Test Transaction",
+          theme: {
+            color: '#6F965E'
+          },
           handler: function (res) {
             addToChain(amount)
               .then((hash) => {
@@ -171,9 +174,7 @@ export default function pay() {
           // "order_id": "order_KTL3lGufa5nvgB", //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
           order_id: result.order_id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
           callback_url: "https://eneqd3r9zrjok.x.pipedream.net/",
-          theme: {
-            color: "#3399cc",
-          },
+          
         };
         var rzp1 = new Razorpay(options);
         rzp1.open();
@@ -347,10 +348,13 @@ export default function pay() {
   
               {/* Action Buttons */}
               <div className="flex gap-4 flex-wrap">
-                <button className="flex-1 min-w-[200px] p-3 border border-[#6F965E] text-[#6F965E] dark:border-[#8BB279] dark:text-[#8BB279] hover:bg-[#6F965E] hover:text-white dark:hover:bg-[#8BB279] dark:hover:text-gray-900 rounded-md transition-colors">
+                <button className="flex-1 min-w-[200px] p-3 border border-[#6F965E] text-[#6F965E] dark:border-[#8BB279] dark:text-[#8BB279] hover:bg-[#6F965E] hover:text-white dark:hover:bg-[#8BB279] dark:hover:text-gray-900 rounded-md transition-colors"
+                // className="w-full px-4 py-2 font-semibold text-white rounded-lg shadow-md btn btn-primary md:w-64 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                >
                   Cancel
                 </button>
-                <button className="flex-1 min-w-[200px] p-3 bg-[#6F965E] hover:bg-[#5A7D4B] dark:bg-[#8BB279] dark:hover:bg-[#9DC28A] text-white dark:text-gray-900 rounded-md transition-colors">
+                <button className="flex-1 min-w-[200px] p-3 bg-[#6F965E] hover:bg-[#5A7D4B] dark:bg-[#8BB279] dark:hover:bg-[#9DC28A] text-white dark:text-gray-900 rounded-md transition-colors"
+                onClick={() => displayRazorpay(amount, org)}>
                   Go to checkout
                 </button>
               </div>
